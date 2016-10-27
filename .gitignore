@@ -269,3 +269,6 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Bazel output files (see https://bazel.io)
+bazel-*

@@ -5,8 +5,8 @@
 
 git_repository(
     name = "io_bazel_rules_dotnet",
-    remote = "https://github.com/bazelbuild/rules_dotnet.git",
-    commit = "343ecc8fe6a1239785228ec1b8b128249814670a",
+    remote = "https://github.com/iainmerrick/rules_dotnet.git",
+    commit = "a5acb86b84280e14a6168478804d305479f4be69",
 )
 
 load(
@@ -15,6 +15,6 @@ load(
     "nuget_package",
 )
 
-csharp_repositories(use_local_mono = False)
+csharp_repositories()
 
 # ----------------------------------------------------------------------------------------

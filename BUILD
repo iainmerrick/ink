@@ -14,6 +14,9 @@ csharp_binary(
       "ink-engine-runtime/*.cs",
     ]),
     warn = 3, # Suppress documentation warnings
+    visibility = [
+        "//visibility:public",
+    ],
 )
 
 csharp_library(
@@ -34,4 +37,5 @@ csharp_nunit_test(
     deps = [
         ":ink",
     ],
+    warn = 3, # Suppress documentation warnings
 )

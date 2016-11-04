@@ -1,3 +1,9 @@
+# ----------------------------------------------------------------------------------------
+# Specifies how to build inklecate with Bazel - https://bazel.build
+#
+# Bazel uses Python syntax. Turn on Python syntax highlighting to make this file look nice
+# ----------------------------------------------------------------------------------------
+
 load(
     "@io_bazel_rules_dotnet//dotnet:csharp.bzl",
     "csharp_library",

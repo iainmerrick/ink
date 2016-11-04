@@ -1,6 +1,9 @@
-# Top-level workspace file for building inklecate with Bazel - https://bazel.io
-
 # ----------------------------------------------------------------------------------------
+# Top-level config for using inklecate with the Bazel build system - https://bazel.build
+#
+# Bazel uses Python syntax. Turn on Python syntax highlighting to make this file look nice
+# ----------------------------------------------------------------------------------------
+
 # C# support - see https://github.com/bazelbuild/rules_dotnet
 
 git_repository(
@@ -16,5 +19,3 @@ load(
 )
 
 csharp_repositories()
-
-# ----------------------------------------------------------------------------------------

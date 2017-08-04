@@ -837,9 +837,9 @@ namespace Ink.Runtime
             // Pass arguments onto the evaluation stack
             if (arguments != null) {
                 for (int i = 0; i < arguments.Length; i++) {
-                    if (!(arguments [i] is int || arguments [i] is float || arguments [i] is string)) {
-                        throw new System.ArgumentException ("ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be int, float or string");
-                    }
+                    //if (!(arguments [i] is int || arguments [i] is float || arguments [i] is string)) {
+                    //    throw new System.ArgumentException ("ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be int, float or string");
+                    //}
 
                     PushEvaluationStack (Runtime.Value.Create (arguments [i]));
                 }

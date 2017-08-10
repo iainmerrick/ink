@@ -124,7 +124,7 @@ namespace Ink.Runtime
             }
         }
             
-        internal Dictionary<string, object> jsonToken
+        internal IDictionary<string, object> jsonToken
         {
             get {
                 return Json.DictionaryRuntimeObjsToJObject(_globalVariables);

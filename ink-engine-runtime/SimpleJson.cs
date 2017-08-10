@@ -10,7 +10,7 @@ namespace Ink.Runtime
     /// </summary>
     internal static class SimpleJson
     {
-        public static string DictionaryToText (Dictionary<string, object> rootObject)
+        public static string DictionaryToText (IDictionary<string, object> rootObject)
         {
             return new Writer (rootObject).ToString ();
         }

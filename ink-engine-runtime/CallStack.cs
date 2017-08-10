@@ -71,13 +71,13 @@ namespace Ink.Runtime
                 callstack = new List<Element>();
             }
 
-			public Thread(Dictionary<string, object> jThreadObj, Story storyContext) : this() {
+			public Thread(IDictionary<string, object> jThreadObj, Story storyContext) : this() {
                 threadIndex = (int) jThreadObj ["threadIndex"];
 
-				List<object> jThreadCallstack = (List<object>) jThreadObj ["callstack"];
+				IList<object> jThreadCallstack = (IList<object>) jThreadObj ["callstack"];
 				foreach (object jElTok in jThreadCallstack) {
 
-					var jElementObj = (Dictionary<string, object>)jElTok;
+					var jElementObj = (IDictionary<string, object>)jElTok;
 
                     PushPopType pushPopType = (PushPopType)(int)jElementObj ["type"];
 
@@ -96,7 +96,7 @@ namespace Ink.Runtime
 
 					var el = new Element (pushPopType, currentContainer, contentIndex, inExpressionEvaluation);
 
-					var jObjTemps = (Dictionary<string, object>) jElementObj ["temp"];
+					var jObjTemps = (IDictionary<string, object>) jElementObj ["temp"];
 					el.temporaryVariables = Json.JObjectToDictionaryRuntimeObjs (jObjTemps);
 
 					callstack.Add (el);
@@ -208,14 +208,14 @@ namespace Ink.Runtime
         // Unfortunately it's not possible to implement jsonToken since
         // the setter needs to take a Story as a context in order to
         // look up objects from paths for currentContainer within elements.
-        public void SetJsonToken(Dictionary<string, object> jObject, Story storyContext)
+        public void SetJsonToken(IDictionary<string, object> jObject, Story storyContext)
         {
             _threads.Clear ();
 
-            var jThreads = (List<object>) jObject ["threads"];
+            var jThreads = (IEnumerable<object>) jObject ["threads"];
 
             foreach (object jThreadTok in jThreads) {
-                var jThreadObj = (Dictionary<string, object>)jThreadTok;
+                var jThreadObj = (IDictionary<string, object>)jThreadTok;
                 var thread = new Thread (jThreadObj, storyContext);
                 _threads.Add (thread);
             }
@@ -355,7 +355,7 @@ namespace Ink.Runtime
             }
         }
 
-        List<Thread> _threads;
+        readonly List<Thread> _threads;
         int _threadCounter;
     }
 }

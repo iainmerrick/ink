@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,38 +7,34 @@ namespace Ink.Runtime
 {
     internal static class Json
     {
-        public static List<object> ListToJArray<T>(List<T> serialisables) where T : Runtime.Object
+        public static List<object> ListToJArray<T>(ICollection<T> serialisables) where T : Runtime.Object
         {
-            var jArray = new List<object> ();
+            var jArray = new List<object> (serialisables.Count);
             foreach (var s in serialisables) {
                 jArray.Add (RuntimeObjectToJToken(s));
             }
             return jArray;
         }
 
-        public static List<T> JArrayToRuntimeObjList<T>(List<object> jArray, bool skipLast=false) where T : Runtime.Object
+        public static List<T> JArrayToRuntimeObjList<T>(ICollection jArray, bool skipLast=false) where T : Runtime.Object
         {
-            int count = jArray.Count;
-            if (skipLast)
-                count--;
-
             var list = new List<T> (jArray.Count);
-
-            for (int i = 0; i < count; i++) {
-                var jTok = jArray [i];
+            foreach (var jTok in jArray)
+            {
+                if (skipLast && list.Count == jArray.Count - 1)
+                    break;
                 var runtimeObj = JTokenToRuntimeObject (jTok) as T;
                 list.Add (runtimeObj);
             }
-
             return list;
         }
 
-        public static List<Runtime.Object> JArrayToRuntimeObjList(List<object> jArray, bool skipLast=false)
+        public static List<Runtime.Object> JArrayToRuntimeObjList(ICollection jArray, bool skipLast=false)
         {
             return JArrayToRuntimeObjList<Runtime.Object> (jArray, skipLast);
         }
 
-        public static Dictionary<string, object> DictionaryRuntimeObjsToJObject(Dictionary<string, Runtime.Object> dictionary)
+        public static Dictionary<string, object> DictionaryRuntimeObjsToJObject(IDictionary<string, Runtime.Object> dictionary)
         {
             var jsonObj = new Dictionary<string, object> ();
 
@@ -50,7 +47,7 @@ namespace Ink.Runtime
             return jsonObj;
         }
 
-        public static Dictionary<string, Runtime.Object> JObjectToDictionaryRuntimeObjs(Dictionary<string, object> jObject)
+        public static Dictionary<string, Runtime.Object> JObjectToDictionaryRuntimeObjs(IDictionary<string, object> jObject)
         {
             var dict = new Dictionary<string, Runtime.Object> (jObject.Count);
 
@@ -61,7 +58,7 @@ namespace Ink.Runtime
             return dict;
         }
 
-        public static Dictionary<string, int> JObjectToIntDictionary(Dictionary<string, object> jObject)
+        public static Dictionary<string, int> JObjectToIntDictionary(IDictionary<string, object> jObject)
         {
             var dict = new Dictionary<string, int> (jObject.Count);
             foreach (var keyVal in jObject) {
@@ -70,7 +67,7 @@ namespace Ink.Runtime
             return dict;
         }
 
-        public static Dictionary<string, object> IntDictionaryToJObject(Dictionary<string, int> dict)
+        public static Dictionary<string, object> IntDictionaryToJObject(IDictionary<string, int> dict)
         {
             var jObj = new Dictionary<string, object> ();
             foreach (var keyVal in dict) {
@@ -114,7 +111,7 @@ namespace Ink.Runtime
         // 
         // Var Assign:     {"VAR=": "varName", "re": true}   // reassignment
         //                 {"temp=": "varName"}
-        // 
+        //
         // Var ref:        {"VAR?": "varName"}
         //                 {"CNT?": "stitch name"}
         // 
@@ -127,10 +124,10 @@ namespace Ink.Runtime
         // Tag:            {"#": "the tag text"}
         public static Runtime.Object JTokenToRuntimeObject(object token)
         {
-            if (token is int || token is float) {
+            if (token is int || token is long || token is float || token is double) {
                 return Value.Create (token);
             }
-            
+
             if (token is string) {
                 string str = (string)token;
 
@@ -176,9 +173,9 @@ namespace Ink.Runtime
                     return new Runtime.Void ();
             }
 
-            if (token is Dictionary<string, object>) {
+            if (token is IDictionary<string, object>) {
 
-                var obj = (Dictionary < string, object> )token;
+                var obj = (IDictionary < string, object> )token;
                 object propValue;
 
                 // Divert target value to path
@@ -239,7 +236,7 @@ namespace Ink.Runtime
 
                     return divert;
                 }
-                    
+
                 // Choice
                 if (obj.TryGetValue ("*", out propValue)) {
                     var choice = new ChoicePoint ();
@@ -285,10 +282,10 @@ namespace Ink.Runtime
 
                 // List value
                 if (obj.TryGetValue ("list", out propValue)) {
-                    var listContent = (Dictionary<string, object>)propValue;
+                    var listContent = (IDictionary<string, object>)propValue;
                     var rawList = new InkList ();
                     if (obj.TryGetValue ("origins", out propValue)) {
-                        var namesAsObjs = (List<object>)propValue;
+                        var namesAsObjs = (IList<object>)propValue;
                         rawList.SetInitialOriginNames (namesAsObjs.Cast<string>().ToList());
                     }
                     foreach (var nameToVal in listContent) {
@@ -305,8 +302,8 @@ namespace Ink.Runtime
             }
 
             // Array is always a Runtime.Container
-            if (token is List<object>) {
-                return JArrayToContainer((List<object>)token);
+            if (token is IList) {
+                return JArrayToContainer((IList)token);
             }
 
             if (token == null)
@@ -370,7 +367,7 @@ namespace Ink.Runtime
             var floatVal = obj as FloatValue;
             if (floatVal)
                 return floatVal.value;
-            
+
             var strVal = obj as StringValue;
             if (strVal) {
                 if (strVal.isNewline)
@@ -451,7 +448,7 @@ namespace Ink.Runtime
 
                 return jObj;
             }
-                
+
             // Void
             var voidObj = obj as Void;
             if (voidObj)
@@ -513,7 +510,7 @@ namespace Ink.Runtime
                     terminatingObj ["#n"] = container.name;
 
                 jArray.Add (terminatingObj);
-            } 
+            }
 
             // Add null terminator to indicate that there's no dictionary
             else {
@@ -523,16 +520,16 @@ namespace Ink.Runtime
             return jArray;
         }
 
-        static Container JArrayToContainer(List<object> jArray)
+        static Container JArrayToContainer(IList jArray)
         {
             var container = new Container ();
-            container.content = JArrayToRuntimeObjList (jArray, skipLast:true);
+            container.content = JArrayToRuntimeObjList(jArray, skipLast:true);
 
             // Final object in the array is always a combination of
             //  - named content
             //  - a "#f" key with the countFlags
             // (if either exists at all, otherwise null)
-            var terminatingObj = jArray [jArray.Count - 1] as Dictionary<string, object>;
+            var terminatingObj = jArray [jArray.Count - 1] as IDictionary<string, object>;
             if (terminatingObj != null) {
 
                 var namedOnlyContent = new Dictionary<string, Runtime.Object> (terminatingObj.Count);
@@ -557,7 +554,7 @@ namespace Ink.Runtime
             return container;
         }
 
-        static Choice JObjectToChoice(Dictionary<string, object> jObj)
+        static Choice JObjectToChoice(IDictionary<string, object> jObj)
         {
             var choice = new Choice();
             choice.text = jObj ["text"].ToString();

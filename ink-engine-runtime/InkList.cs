@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System;
 
 namespace Ink.Runtime
 {
@@ -130,6 +131,20 @@ namespace Ink.Runtime
                 origins = new List<ListDefinition> { def };
             else
                 throw new System.Exception ("InkList origin could not be found in story when constructing new list: " + singleOriginListName);
+        }
+
+        /// <summary>
+        /// Construct a new ink list from a JSON-style dictionary
+        /// </summary>
+        public InkList(IDictionary<string, object> elements)
+        {
+            foreach (var e in elements)
+                Add(new InkListItem(e.Key), Convert.ToInt32(e.Value));
+        }
+
+        internal InkList(KeyValuePair<string, object> singleElement)
+        {
+            Add(new InkListItem(singleElement.Key), Convert.ToInt32(singleElement.Value));
         }
 
         internal InkList (KeyValuePair<InkListItem, int> singleElement)

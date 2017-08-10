@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Collections.Generic;
+using System;
 
 namespace Ink.Runtime
 {
@@ -44,23 +45,22 @@ namespace Ink.Runtime
                 val = (int)(b ? 1 : 0);
             }
 
-            if (val is int) {
-                return new IntValue ((int)val);
-            } else if (val is long) {
-                return new IntValue ((int)(long)val);
-            } else if (val is float) {
-                return new FloatValue ((float)val);
-            } else if (val is double) {
-                return new FloatValue ((float)(double)val);
+            if (val is int || val is long) {
+                return new IntValue(Convert.ToInt32(val));
+            } else if (val is float || val is double) {
+                return new FloatValue(Convert.ToSingle(val));
             } else if (val is string) {
                 return new StringValue ((string)val);
             } else if (val is Path) {
                 return new DivertTargetValue ((Path)val);
             } else if (val is InkList) {
                 return new ListValue ((InkList)val);
+            } else if (val is IDictionary<string, object>) {
+                var list = new InkList(val as IDictionary<string, object>);
+                return new ListValue(list);
             }
 
-            return null;
+            throw new ArgumentException($"Can't create Value from object: {val}");
         }
 
         internal override Object Copy()
